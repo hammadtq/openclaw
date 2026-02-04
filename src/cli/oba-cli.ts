@@ -5,9 +5,9 @@ import type { Command } from "commander";
 import { openUrl } from "../commands/onboard-helpers.js";
 import { defaultRuntime } from "../runtime.js";
 import { loginOba, saveObaToken } from "../security/oba/login.js";
-import { getObaKeysDir } from "../security/oba/keys.js";
 import {
   generateObaKeyPair,
+  getObaKeysDir,
   listObaKeys,
   loadMostRecentObaKey,
   loadObaKey,
@@ -79,7 +79,7 @@ export function registerObaCli(program: Command): void {
     .action(async (opts: { apiUrl: string; timeout: string; manual?: boolean }) => {
       const timeoutMs = Number(opts.timeout) * 1000;
       if (!Number.isFinite(timeoutMs) || timeoutMs < 10_000) {
-        defaultRuntime.log("Error: timeout must be at least 10 seconds");
+        defaultRuntime.error("Error: timeout must be at least 10 seconds");
         process.exitCode = 1;
         return;
       }
@@ -104,13 +104,13 @@ export function registerObaCli(program: Command): void {
       });
 
       if (!result.ok) {
-        defaultRuntime.log(`Login failed: ${result.error}`);
+        defaultRuntime.error(`Login failed: ${result.error}`);
         process.exitCode = 1;
         return;
       }
 
       if (!result.token) {
-        defaultRuntime.log("Login succeeded but no token was returned");
+        defaultRuntime.error("Login succeeded but no token was returned");
         process.exitCode = 1;
         return;
       }
@@ -129,7 +129,7 @@ export function registerObaCli(program: Command): void {
       if (opts.owner) {
         const urlResult = validateOwnerUrl(opts.owner);
         if (!urlResult.ok) {
-          defaultRuntime.log(`Error: ${urlResult.error}`);
+          defaultRuntime.error(`Error: ${urlResult.error}`);
           process.exitCode = 1;
           return;
         }
@@ -236,7 +236,7 @@ export function registerObaCli(program: Command): void {
       ) => {
         const resolved = path.resolve(manifestPath);
         if (!fs.existsSync(resolved)) {
-          defaultRuntime.log(`Error: file not found: ${resolved}`);
+          defaultRuntime.error(`Error: file not found: ${resolved}`);
           process.exitCode = 1;
           return;
         }
@@ -286,7 +286,7 @@ export function registerObaCli(program: Command): void {
       ) => {
         const resolved = path.resolve(skillPath);
         if (!fs.existsSync(resolved)) {
-          defaultRuntime.log(`Error: file not found: ${resolved}`);
+          defaultRuntime.error(`Error: file not found: ${resolved}`);
           process.exitCode = 1;
           return;
         }
@@ -360,7 +360,7 @@ export function registerObaCli(program: Command): void {
         });
 
         if (!result.ok) {
-          defaultRuntime.log(`Error: ${result.error}`);
+          defaultRuntime.error(`Error: ${result.error}`);
           process.exitCode = 1;
           return;
         }
